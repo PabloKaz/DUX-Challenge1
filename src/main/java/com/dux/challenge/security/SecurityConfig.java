@@ -29,7 +29,13 @@ public class SecurityConfig {
         )
       )
       .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/auth/login", "/h2-console/**").permitAll()
+    		    .requestMatchers(
+    		            "/auth/login",
+    		            "/h2-console/**",
+    		            "/v3/api-docs/**",
+    		            "/swagger-ui.html", 
+    		            "/swagger-ui/**"
+    		        ).permitAll()
         .anyRequest().authenticated()
       )
       .headers(headers -> headers.frameOptions(frame -> frame.disable()))
