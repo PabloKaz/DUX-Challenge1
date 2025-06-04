@@ -34,7 +34,7 @@ public class EquipoServiceImpl implements EquipoService {
                 );
         return mapToResponse(equipo);
     }
-
+ 
     @Override
     public List<EquipoResponse> buscarPorNombre(String nombre) {
         return equipoRepo.findByNombreContainingIgnoreCase(nombre)
