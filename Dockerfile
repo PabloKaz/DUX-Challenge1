@@ -1,22 +1,29 @@
-# 1) Stage de compilación: construye el JAR con Maven
+# Etapa de compilación
 FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /workspace
+
+# Copiamos pom, el wrapper de Maven y el código fuente
 COPY pom.xml mvnw ./
 COPY .mvn .mvn
 COPY src src
-# Prepara dependencias (cachea para no volver a bajarlas cada build)
+
+# Damos permiso de ejecución al mvnw antes de invocarlo
+RUN chmod +x mvnw
+
+# Cacheamos dependencias
 RUN ./mvnw dependency:go-offline -B
-# Ahora compila el proyecto
+
+# Compilamos el JAR (sin tests)
 RUN ./mvnw clean package -DskipTests -B
 
-# 2) Stage final: solo el runtime
+# -----------------------------
+
+# Etapa de runtime
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
-# Copia únicamente el JAR generado en el stage anterior
-COPY --from=build /workspace/target/DUX-Challenge-0.0.1-SNAPSHOT.jar app.jar
 
-# Expone el puerto en el que corre Spring Boot
-EXPOSE 8080
+# Copiamos el JAR generado en la etapa anterior
+COPY --from=build /workspace/target/*.jar app.jar
 
-# Comando por defecto al levantar el contenedor
+# Ejecutamos la aplicación
 ENTRYPOINT ["java","-jar","/app/app.jar"]
